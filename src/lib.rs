@@ -11,9 +11,6 @@ use std::path::PathBuf;
 use webrender_traits::{PipelineId, StackingContextId, DisplayListId};
 use webrender_traits::{AuxiliaryListsBuilder, Epoch, ColorF, ClipRegion};
 use webrender_traits::RendererKind;
-use std::fs::File;
-use std::io::Read;
-use std::env;
 
 static SHADERS_PATH: &'static str = "shaders";
 
