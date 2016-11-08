@@ -10,7 +10,7 @@ use gleam::gl;
 use std::path::PathBuf;
 use webrender_traits::{PipelineId, StackingContextId, DisplayListId};
 use webrender_traits::{AuxiliaryListsBuilder, Epoch, ColorF};
-use webrender_traits::{RendererKind};
+use webrender_traits::RendererKind;
 use std::fs::File;
 use std::io::Read;
 use std::env;
@@ -21,9 +21,7 @@ struct Notifier {
 
 impl Notifier {
     fn new(window_proxy: glutin::WindowProxy) -> Notifier {
-        Notifier {
-            window_proxy: window_proxy,
-        }
+        Notifier { window_proxy: window_proxy }
     }
 }
 
@@ -73,7 +71,6 @@ impl WebRenderFrameBuilder {
         self.next_scroll_layer_id += 1;
         webrender_traits::ScrollLayerId::new(self.root_pipeline_id, 0, scroll_layer_id)
     }
-
 }
 
 impl webrender_traits::RenderNotifier for Notifier {
@@ -85,10 +82,7 @@ impl webrender_traits::RenderNotifier for Notifier {
         self.window_proxy.wakeup_event_loop();
     }
 
-    fn pipeline_size_changed(&mut self,
-                             _: PipelineId,
-                             _: Option<Size2D<f32>>) {
-    }
+    fn pipeline_size_changed(&mut self, _: PipelineId, _: Option<Size2D<f32>>) {}
 }
 
 pub fn run() {
@@ -101,9 +95,9 @@ pub fn run() {
     let res_path = &args[1];
 
     let window = glutin::WindowBuilder::new()
-                .with_gl(glutin::GlRequest::Specific(glutin::Api::OpenGl, (3, 2)))
-                .build()
-                .unwrap();
+        .with_gl(glutin::GlRequest::Specific(glutin::Api::OpenGl, (3, 2)))
+        .build()
+        .unwrap();
 
     unsafe {
         window.make_current().ok();
@@ -140,36 +134,34 @@ pub fn run() {
 
     let bounds = Rect::new(Point2D::new(0.0, 0.0),
                            Size2D::new(width as f32, height as f32));
-    let mut sc =
-        webrender_traits::StackingContext::new(Some(root_scroll_layer_id),
-                                               webrender_traits::ScrollPolicy::Scrollable,
-                                               bounds,
-                                               bounds,
-                                               0,
-                                               &Matrix4D::identity(),
-                                               &Matrix4D::identity(),
-                                               true,
-                                               webrender_traits::MixBlendMode::Normal,
-                                               Vec::new(),
-                                               &mut frame_builder.auxiliary_lists_builder);
+    let mut sc = webrender_traits::StackingContext::new(Some(root_scroll_layer_id),
+                                                        webrender_traits::ScrollPolicy::Scrollable,
+                                                        bounds,
+                                                        bounds,
+                                                        0,
+                                                        &Matrix4D::identity(),
+                                                        &Matrix4D::identity(),
+                                                        true,
+                                                        webrender_traits::MixBlendMode::Normal,
+                                                        Vec::new(),
+                                                        &mut frame_builder.auxiliary_lists_builder);
 
     let builder = webrender_traits::DisplayListBuilder::new();
 
 
     frame_builder.add_display_list(&mut api, builder.finalize(), &mut sc);
-    //let sc_id = frame_builder.add_stacking_context(&mut api, pipeline_id, sc);
+    // let sc_id = frame_builder.add_stacking_context(&mut api, pipeline_id, sc);
 
-    /*
-    api.set_root_stacking_context(sc_id,
-                                  ColorF::new(1., 0.0, 0.0, 1.0),
-                                  Epoch(0),
-                                  pipeline_id,
-                                  Size2D::new(width as f32, height as f32),
-                                  frame_builder.stacking_contexts,
-                                  frame_builder.display_lists,
-                                  frame_builder.auxiliary_lists_builder
-                                               .finalize());
-   */
+    // api.set_root_stacking_context(sc_id,
+    // ColorF::new(1., 0.0, 0.0, 1.0),
+    // Epoch(0),
+    // pipeline_id,
+    // Size2D::new(width as f32, height as f32),
+    // frame_builder.stacking_contexts,
+    // frame_builder.display_lists,
+    // frame_builder.auxiliary_lists_builder
+    // .finalize());
+    //
 
     api.set_root_pipeline(pipeline_id);
 
@@ -188,8 +180,7 @@ pub fn run() {
                     break;
                 }
             }
-            _ => ()
+            _ => (),
         }
     }
 }
-
