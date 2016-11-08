@@ -91,7 +91,7 @@ impl webrender_traits::RenderNotifier for Notifier {
     }
 }
 
-fn main() {
+pub fn run() {
     let args: Vec<String> = env::args().collect();
     if args.len() != 2 {
         println!("{} <shader path>", args[0]);
