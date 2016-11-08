@@ -9,7 +9,7 @@ use euclid::{Size2D, Point2D, Rect, Matrix4D};
 use gleam::gl;
 use std::path::PathBuf;
 use webrender_traits::{PipelineId, StackingContextId, DisplayListId};
-use webrender_traits::{AuxiliaryListsBuilder, Epoch, ColorF};
+use webrender_traits::{AuxiliaryListsBuilder, Epoch, ColorF, ClipRegion};
 use webrender_traits::RendererKind;
 use std::fs::File;
 use std::io::Read;
@@ -100,6 +100,7 @@ pub fn run() {
     }
 
     let (width, height) = window.get_inner_size().unwrap();
+    let window_size = Size2D::new(width as f32, height as f32);
 
     let opts = webrender::RendererOptions {
         device_pixel_ratio: 1.0,
@@ -126,8 +127,7 @@ pub fn run() {
     let mut frame_builder = WebRenderFrameBuilder::new(pipeline_id);
     let root_scroll_layer_id = frame_builder.next_scroll_layer_id();
 
-    let bounds = Rect::new(Point2D::new(0.0, 0.0),
-                           Size2D::new(width as f32, height as f32));
+    let bounds = Rect::new(Point2D::new(0.0, 0.0), window_size);
     let mut sc = webrender_traits::StackingContext::new(Some(root_scroll_layer_id),
                                                         webrender_traits::ScrollPolicy::Scrollable,
                                                         bounds,
@@ -140,22 +140,24 @@ pub fn run() {
                                                         Vec::new(),
                                                         &mut frame_builder.auxiliary_lists_builder);
 
-    let builder = webrender_traits::DisplayListBuilder::new();
+    let mut builder = webrender_traits::DisplayListBuilder::new();
 
+    builder.push_rect(Rect::new(Point2D::new(100.0, 100.0), Size2D::new(100.0, 100.0)),
+                      ClipRegion::simple(&bounds),
+                      ColorF::new(0.0, 1.0, 0.0, 1.0));
 
     frame_builder.add_display_list(&mut api, builder.finalize(), &mut sc);
-    // let sc_id = frame_builder.add_stacking_context(&mut api, pipeline_id, sc);
 
-    // api.set_root_stacking_context(sc_id,
-    // ColorF::new(1., 0.0, 0.0, 1.0),
-    // Epoch(0),
-    // pipeline_id,
-    // Size2D::new(width as f32, height as f32),
-    // frame_builder.stacking_contexts,
-    // frame_builder.display_lists,
-    // frame_builder.auxiliary_lists_builder
-    // .finalize());
-    //
+    let sc_id = frame_builder.add_stacking_context(&mut api, pipeline_id, sc);
+    api.set_root_stacking_context(sc_id,
+                                  ColorF::new(1., 0.0, 0.0, 1.0),
+                                  Epoch(0),
+                                  pipeline_id,
+                                  Size2D::new(width as f32, height as f32),
+                                  frame_builder.stacking_contexts,
+                                  frame_builder.display_lists,
+                                  frame_builder.auxiliary_lists_builder
+                                      .finalize());
 
     api.set_root_pipeline(pipeline_id);
 
