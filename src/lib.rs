@@ -15,6 +15,8 @@ use std::fs::File;
 use std::io::Read;
 use std::env;
 
+static SHADERS_PATH: &'static str = "shaders";
+
 struct Notifier {
     window_proxy: glutin::WindowProxy,
 }
@@ -86,14 +88,6 @@ impl webrender_traits::RenderNotifier for Notifier {
 }
 
 pub fn run() {
-    let args: Vec<String> = env::args().collect();
-    if args.len() != 2 {
-        println!("{} <shader path>", args[0]);
-        return;
-    }
-
-    let res_path = &args[1];
-
     let window = glutin::WindowBuilder::new()
         .with_gl(glutin::GlRequest::Specific(glutin::Api::OpenGl, (3, 2)))
         .build()
@@ -109,7 +103,7 @@ pub fn run() {
 
     let opts = webrender::RendererOptions {
         device_pixel_ratio: 1.0,
-        resource_path: PathBuf::from(res_path),
+        resource_path: PathBuf::from(SHADERS_PATH),
         enable_aa: false,
         enable_msaa: false,
         enable_profiler: false,
