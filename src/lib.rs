@@ -5,12 +5,12 @@ extern crate gleam;
 extern crate webrender_traits;
 extern crate euclid;
 
-use euclid::{Size2D, Point2D, Rect, Matrix4D};
+use euclid::{Size2D, Point2D, Matrix4D};
 use gleam::gl;
 use std::path::PathBuf;
 use webrender_traits::{PipelineId, StackingContextId, DisplayListId};
 use webrender_traits::{AuxiliaryListsBuilder, Epoch, ColorF, ClipRegion};
-use webrender_traits::RendererKind;
+use webrender_traits::{DisplayItem, RendererKind};
 
 static SHADERS_PATH: &'static str = "shaders";
 
@@ -84,7 +84,7 @@ impl webrender_traits::RenderNotifier for Notifier {
     fn pipeline_size_changed(&mut self, _: PipelineId, _: Option<Size2D<f32>>) {}
 }
 
-pub fn run() {
+pub fn run<T: AsDisplayItem>(item: T) {
     let window = glutin::WindowBuilder::new()
         .with_gl(glutin::GlRequest::Specific(glutin::Api::OpenGl, (3, 2)))
         .build()
@@ -124,7 +124,7 @@ pub fn run() {
     let mut frame_builder = WebRenderFrameBuilder::new(pipeline_id);
     let root_scroll_layer_id = frame_builder.next_scroll_layer_id();
 
-    let bounds = Rect::new(Point2D::new(0.0, 0.0), window_size);
+    let bounds = euclid::Rect::new(Point2D::new(0.0, 0.0), window_size);
     let mut sc = webrender_traits::StackingContext::new(Some(root_scroll_layer_id),
                                                         webrender_traits::ScrollPolicy::Scrollable,
                                                         bounds,
@@ -139,9 +139,7 @@ pub fn run() {
 
     let mut builder = webrender_traits::DisplayListBuilder::new();
 
-    builder.push_rect(Rect::new(Point2D::new(100.0, 100.0), Size2D::new(100.0, 100.0)),
-                      ClipRegion::simple(&bounds),
-                      ColorF::new(0.0, 1.0, 0.0, 1.0));
+    item.as_display_item(ClipRegion::simple(&bounds), &mut builder);
 
     frame_builder.add_display_list(&mut api, builder.finalize(), &mut sc);
 
@@ -177,3 +175,29 @@ pub fn run() {
         }
     }
 }
+
+pub trait AsDisplayItem {
+    fn as_display_item(&self, clip: ClipRegion, builder: &mut webrender_traits::DisplayListBuilder);
+}
+
+pub struct Rect {
+    pub origin_x: f32,
+    pub origin_y: f32,
+    pub size_x: f32,
+    pub size_y: f32,
+}
+
+impl Rect {
+    fn as_euclid_rect(&self) -> euclid::Rect<f32> {
+        euclid::Rect::new(Point2D::new(self.origin_x, self.origin_y), Size2D::new(self.size_x, self.size_y))
+    }
+}
+
+
+impl AsDisplayItem for Rect {
+    fn as_display_item(&self, clip: ClipRegion, builder: &mut webrender_traits::DisplayListBuilder) {
+        builder.push_rect(self.as_euclid_rect(), clip, ColorF::new(0.0, 1.0, 0.0, 1.0))
+    }
+}
+
+
