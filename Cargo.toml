@@ -1,0 +1,18 @@
+[package]
+name = "wrender"
+version = "0.1.0"
+authors = ["Corey Farwell <coreyf@rwell.org>"]
+
+[dependencies.webrender]
+git = "https://github.com/servo/webrender"
+commit = "f277305"
+
+[dependencies.webrender_traits]
+git = "https://github.com/servo/webrender"
+commit = "f277305"
+
+[dependencies]
+app_units = "0.3"
+euclid = "0.10"
+gleam = "0.2"
+glutin = "0.6"
