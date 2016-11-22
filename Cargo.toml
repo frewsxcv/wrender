@@ -5,11 +5,11 @@ authors = ["Corey Farwell <coreyf@rwell.org>"]
 
 [dependencies.webrender]
 git = "https://github.com/servo/webrender"
-commit = "0f79d9dc449e"
+rev = "4db55ba8f9a1dd482c47a984901a66e1ae2a0b27"
 
 [dependencies.webrender_traits]
 git = "https://github.com/servo/webrender"
-commit = "0f79d9dc449e"
+rev = "4db55ba8f9a1dd482c47a984901a66e1ae2a0b27"
 
 [dependencies]
 app_units = "0.3"
